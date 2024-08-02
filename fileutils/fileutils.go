@@ -33,8 +33,14 @@ func WriteToFile(frequencyTable map[rune]int,
 		panic(err)
 	}
 
-	f.Write(m)
-	f.WriteString("\n")
+	_, err = f.Write(m)
+	if err != nil {
+		panic(err)
+	}
+	_, err = f.WriteString("\n")
+	if err != nil {
+		panic(err)
+	}
 	defer f.Close()
 
 	f1, err := os.Open(inputfile)
@@ -60,7 +66,10 @@ func WriteToFile(frequencyTable map[rune]int,
 				}
 				bits++
 				if bits == 8 {
-					writer.WriteByte(buffer)
+					err := writer.WriteByte(buffer)
+					if err != nil {
+						panic(err)
+					}
 					bits = 0
 					buffer = 0
 				}
@@ -69,7 +78,10 @@ func WriteToFile(frequencyTable map[rune]int,
 	}
 
 	if buffer > 0 {
-		writer.WriteByte(buffer)
+		err := writer.WriteByte(buffer)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	writer.Flush()

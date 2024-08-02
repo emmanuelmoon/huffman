@@ -15,7 +15,10 @@ func main() {
 	}
 	filepath := args[1]
 	var m = make(map[rune]int)
-	fileutils.MapFile(filepath, m)
+	err := fileutils.MapFile(filepath, m)
+	if err != nil {
+		panic(err)
+	}
 	t := huffman.BuildHuffmanTree(m)
 	table := make(map[rune]string)
 	huffman.BuildPrefixTable(&t, table)
