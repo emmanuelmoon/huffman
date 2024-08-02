@@ -15,5 +15,5 @@ Clone the repository
 Build the project
 
 ```bash
-go build main.go
+  go build main.go
 ```
