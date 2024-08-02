@@ -2,6 +2,7 @@ package huffman
 
 import (
 	"container/heap"
+	"sort"
 	"strings"
 )
 
@@ -64,10 +65,19 @@ func BuildPrefixTable(t *HuffTree, tble map[rune]string) {
 }
 
 func BuildHuffmanTree(m map[rune]int) HuffTree {
+	arr := []HuffTree{}
+	for key, value := range m {
+		arr = append(arr, HuffTree{nil, nil, key, value})
+	}
+
+	sort.Slice(arr, func(i, j int) bool {
+		return arr[i].element < arr[j].element
+	})
+
 	h := &Heap{}
 	heap.Init(h)
-	for key, value := range m {
-		heap.Push(h, HuffTree{nil, nil, key, value})
+	for _, v := range arr {
+		heap.Push(h, v)
 	}
 
 	for h.Len() > 1 {
