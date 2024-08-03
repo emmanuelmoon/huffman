@@ -23,4 +23,6 @@ func main() {
 	table := make(map[rune]string)
 	huffman.BuildPrefixTable(&t, table)
 	fileutils.WriteToFile(m, table, filepath)
+
+	decompress("temp.txt")
 }

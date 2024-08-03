@@ -3,22 +3,28 @@ package fileutils
 import (
 	"bufio"
 	"encoding/json"
+	"io"
 	"os"
 )
 
 func MapFile(filepath string, m map[rune]int) error {
-	data, err := os.Open(filepath)
+	file, err := os.Open("135-0.txt")
 	if err != nil {
-		return err
+		panic(err)
 	}
+	defer file.Close()
 
-	scanner := bufio.NewScanner(data)
-	for scanner.Scan() {
-		for _, char := range scanner.Text() {
-			m[char] += 1
+	reader := bufio.NewReader(file)
+	for {
+		r, _, err := reader.ReadRune()
+		if err == io.EOF {
+			break
 		}
+		if err != nil {
+			panic(err)
+		}
+		m[r] += 1
 	}
-
 	return nil
 }
 
@@ -53,26 +59,31 @@ func WriteToFile(frequencyTable map[rune]int,
 	var bits uint8 = 0
 
 	writer := bufio.NewWriter(f)
-	scanner := bufio.NewScanner(f1)
-	for scanner.Scan() {
-		for _, char := range scanner.Text() {
-			value, ok := prefixTable[char]
-			if !ok {
-				os.Exit(1)
+	reader := bufio.NewReader(f1)
+	for {
+		char, _, err := reader.ReadRune()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		value, ok := prefixTable[char]
+		if !ok {
+			os.Exit(1)
+		}
+		for _, b := range value {
+			if b == '1' {
+				buffer |= 1 << (7 - bits)
 			}
-			for _, b := range value {
-				if b == '1' {
-					buffer |= 1 << (7 - bits)
+			bits++
+			if bits == 8 {
+				err := writer.WriteByte(buffer)
+				if err != nil {
+					panic(err)
 				}
-				bits++
-				if bits == 8 {
-					err := writer.WriteByte(buffer)
-					if err != nil {
-						panic(err)
-					}
-					bits = 0
-					buffer = 0
-				}
+				bits = 0
+				buffer = 0
 			}
 		}
 	}
