@@ -3,7 +3,6 @@ module huffman
 go 1.22.5
 
 require (
-	github.com/urfave/cli v1.22.15
 	github.com/urfave/cli/v2 v2.27.3
 )
 
