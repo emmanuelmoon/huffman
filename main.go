@@ -1,28 +1,54 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"huffman/fileutils"
-	"huffman/huffman"
+	"huffman/treeUtils"
+	"log"
 	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
-	args := os.Args
-	if len(args) != 2 {
-		fmt.Println("Invalid or no argument")
-		os.Exit(1)
+	app := &cli.App{
+		Name:        "huffman",
+		Description: "encode and decode files using huffman coding",
+		Usage:       "a compression tool",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{Name: "compress", Aliases: []string{"c"}, Usage: "compress a file (to be followed by input and output filenames)", DefaultText: ""},
+			&cli.BoolFlag{Name: "decompress", Aliases: []string{"d"}, Usage: "decompress a file", DefaultText: ""},
+		},
+		Action: func(cCtx *cli.Context) error {
+			if cCtx.Bool("compress") && cCtx.Bool("decompress") {
+				return errors.New("provide only one flag")
+			}
+			if cCtx.NArg() < 2 {
+				return errors.New("provide both input and output file names")
+			}
+			input := cCtx.Args().Get(0)
+			output := cCtx.Args().Get(1)
+			if cCtx.Bool("compress") {
+				var m = make(map[rune]int)
+				err := fileutils.MapFile(input, m)
+				if err != nil {
+					panic(err)
+				}
+				t := treeUtils.BuildHuffmanTree(m)
+				table := make(map[rune]string)
+				treeUtils.BuildPrefixTable(&t, table)
+				fileutils.WriteToFile(m, table, input, output)
+			} else if cCtx.Bool("decompress") {
+				decompressFile(input, output)
+			} else {
+				log.Fatal("flag is required")
+			}
+			return nil
+		},
 	}
-	filepath := args[1]
-	var m = make(map[rune]int)
-	err := fileutils.MapFile(filepath, m)
-	if err != nil {
-		panic(err)
-	}
-	t := huffman.BuildHuffmanTree(m)
-	table := make(map[rune]string)
-	huffman.BuildPrefixTable(&t, table)
-	fileutils.WriteToFile(m, table, filepath)
 
-	decompress("temp.txt")
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+
 }

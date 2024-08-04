@@ -29,12 +29,12 @@ func MapFile(filepath string, m map[rune]int) error {
 }
 
 func WriteToFile(frequencyTable map[rune]int,
-	prefixTable map[rune]string, inputfile string) {
+	prefixTable map[rune]string, inputfile string, outputfile string) {
 	m, err := json.Marshal(frequencyTable)
 	if err != nil {
 		panic(err)
 	}
-	f, err := os.Create("temp.txt")
+	f, err := os.Create(outputfile)
 	if err != nil {
 		panic(err)
 	}

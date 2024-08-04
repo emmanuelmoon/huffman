@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"huffman/huffman"
+	"huffman/treeUtils"
 	"io"
 	"os"
 	"strings"
 )
 
-func decompress(filename string) {
+func decompressFile(inputfile string, outputfile string) {
 	m := make(map[rune]int)
-	f, err := os.Open(filename)
+	f, err := os.Open(inputfile)
 	if err != nil {
 		panic(err)
 	}
@@ -27,8 +27,8 @@ func decompress(filename string) {
 
 	prefixTable := make(map[rune]string)
 
-	tree := huffman.BuildHuffmanTree(m)
-	huffman.BuildPrefixTable(&tree, prefixTable)
+	tree := treeUtils.BuildHuffmanTree(m)
+	treeUtils.BuildPrefixTable(&tree, prefixTable)
 
 	reverseTable := make(map[string]rune)
 
@@ -36,7 +36,7 @@ func decompress(filename string) {
 		reverseTable[value] = key
 	}
 
-	f, err = os.Create("decoded.txt")
+	f, err = os.Create(outputfile)
 	if err != nil {
 		panic(err)
 	}
