@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"huffman/treeUtils"
 	"io"
+	"log"
 	"os"
 	"strings"
 )
@@ -23,7 +24,10 @@ func decompressFile(inputfile string, outputfile string) {
 	if err != nil {
 		os.Exit(1)
 	}
-	json.Unmarshal(l, &m)
+	err = json.Unmarshal(l, &m)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	prefixTable := make(map[rune]string)
 
@@ -42,7 +46,7 @@ func decompressFile(inputfile string, outputfile string) {
 	}
 
 	writer := bufio.NewWriter(f)
-	var i uint8 = 0
+	var i uint8
 	builder := strings.Builder{}
 	for {
 		x, err := reader.ReadByte()
@@ -62,7 +66,10 @@ func decompressFile(inputfile string, outputfile string) {
 			}
 			val, ok := reverseTable[builder.String()]
 			if ok {
-				writer.WriteRune(val)
+				_, err = writer.WriteRune(val)
+				if err != nil {
+					log.Fatal(err)
+				}
 				builder.Reset()
 			}
 		}
