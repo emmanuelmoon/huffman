@@ -2,8 +2,6 @@ package main
 
 import (
 	"errors"
-	"huffman/fileutils"
-	"huffman/treeUtils"
 	"log"
 	"os"
 
@@ -29,15 +27,7 @@ func main() {
 			input := cCtx.Args().Get(0)
 			output := cCtx.Args().Get(1)
 			if cCtx.Bool("compress") {
-				var m = make(map[rune]int)
-				err := fileutils.MapFile(input, m)
-				if err != nil {
-					panic(err)
-				}
-				t := treeUtils.BuildHuffmanTree(m)
-				table := make(map[rune]string)
-				treeUtils.BuildPrefixTable(&t, table)
-				fileutils.WriteToFile(m, table, input, output)
+				compress(input, output)
 			} else if cCtx.Bool("decompress") {
 				decompressFile(input, output)
 			} else {
